@@ -12,7 +12,7 @@ use r2d2_diesel::ConnectionManager;
 
 #[test]
 fn pg_basic_connection() {
-    let manager = ConnectionManager::<PgConnection>::new("postgres://localhost/");
+    let manager = ConnectionManager::<PgConnection>::new("postgres://localhost/", None);
     let config = r2d2::Config::builder().pool_size(2).build();
     let pool = Arc::new(r2d2::Pool::new(config, manager).unwrap());
 
@@ -43,7 +43,7 @@ fn pg_basic_connection() {
 
 #[test]
 fn pg_is_valid() {
-    let manager = ConnectionManager::<PgConnection>::new("postgres://localhost/");
+    let manager = ConnectionManager::<PgConnection>::new("postgres://localhost/", None);
     let config = r2d2::Config::builder().pool_size(1).test_on_check_out(true).build();
     let pool = r2d2::Pool::new(config, manager).unwrap();
 
@@ -52,7 +52,7 @@ fn pg_is_valid() {
 
 #[test]
 fn sqlite_basic_connection() {
-    let manager = ConnectionManager::<SqliteConnection>::new("test.db");
+    let manager = ConnectionManager::<SqliteConnection>::new("test.db", None);
     let config = r2d2::Config::builder().pool_size(2).build();
     let pool = Arc::new(r2d2::Pool::new(config, manager).unwrap());
 
@@ -83,7 +83,7 @@ fn sqlite_basic_connection() {
 
 #[test]
 fn sqlite_is_valid() {
-    let manager = ConnectionManager::<SqliteConnection>::new("test.db");
+    let manager = ConnectionManager::<SqliteConnection>::new("test.db", None);
     let config = r2d2::Config::builder().pool_size(1).test_on_check_out(true).build();
     let pool = r2d2::Pool::new(config, manager).unwrap();
 

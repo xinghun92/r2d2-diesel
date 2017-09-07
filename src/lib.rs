@@ -9,6 +9,7 @@ use std::marker::PhantomData;
 
 pub struct ConnectionManager<T> {
     database_url: String,
+    password: Option<String>,
     _marker: PhantomData<T>,
 }
 
@@ -16,9 +17,10 @@ unsafe impl<T: Send + 'static> Sync for ConnectionManager<T> {
 }
 
 impl<T> ConnectionManager<T> {
-    pub fn new<S: Into<String>>(database_url: S) -> Self {
+    pub fn new<S: Into<String>>(database_url: S, password: Option<String>) -> Self {
         ConnectionManager {
             database_url: database_url.into(),
+            password: password,
             _marker: PhantomData,
         }
     }
@@ -55,7 +57,7 @@ impl<T> ManageConnection for ConnectionManager<T> where
     type Error = Error;
 
     fn connect(&self) -> Result<T, Error> {
-        T::establish(&self.database_url)
+        T::establish(&self.database_url, self.password.clone())
             .map_err(Error::ConnectionError)
     }
 
