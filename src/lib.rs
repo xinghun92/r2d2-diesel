@@ -2,6 +2,7 @@ extern crate diesel;
 extern crate r2d2;
 
 use diesel::{Connection, ConnectionError};
+use diesel::connection::Config;
 use r2d2::ManageConnection;
 use std::convert::Into;
 use std::fmt;
@@ -9,7 +10,7 @@ use std::marker::PhantomData;
 
 pub struct ConnectionManager<T> {
     database_url: String,
-    password: Option<String>,
+    config: Config,
     _marker: PhantomData<T>,
 }
 
@@ -17,10 +18,10 @@ unsafe impl<T: Send + 'static> Sync for ConnectionManager<T> {
 }
 
 impl<T> ConnectionManager<T> {
-    pub fn new<S: Into<String>>(database_url: S, password: Option<String>) -> Self {
+    pub fn new<S: Into<String>>(database_url: S, config: Config) -> Self {
         ConnectionManager {
             database_url: database_url.into(),
-            password: password,
+            config,
             _marker: PhantomData,
         }
     }
@@ -57,7 +58,7 @@ impl<T> ManageConnection for ConnectionManager<T> where
     type Error = Error;
 
     fn connect(&self) -> Result<T, Error> {
-        T::establish(&self.database_url, self.password.clone())
+        T::establish(&self.database_url, self.config.clone())
             .map_err(Error::ConnectionError)
     }
 
