@@ -9,18 +9,23 @@ use std::marker::PhantomData;
 
 pub struct ConnectionManager<T> {
     database_url: String,
-    password: Option<String>,
+    init_connection: InitConnectionImpl<T>,
     _marker: PhantomData<T>,
 }
 
 unsafe impl<T: Send + 'static> Sync for ConnectionManager<T> {
 }
 
+pub trait InitConnection<T>: Fn(&T) -> Result<(), Error> + Sync + 'static + Send {}
+impl<T, C> InitConnection<T> for C where C: Fn(&T) -> Result<(), Error> + Sync + 'static + Send {}
+pub type InitConnectionImpl<T> = Box<InitConnection<T, Output=Result<(), Error>>>;
+
 impl<T> ConnectionManager<T> {
-    pub fn new<S: Into<String>>(database_url: S, password: Option<String>) -> Self {
+    pub fn new<S: Into<String>>(database_url: S, init_connection: InitConnectionImpl<T>) -> Self
+    {
         ConnectionManager {
             database_url: database_url.into(),
-            password: password,
+            init_connection,
             _marker: PhantomData,
         }
     }
@@ -57,8 +62,10 @@ impl<T> ManageConnection for ConnectionManager<T> where
     type Error = Error;
 
     fn connect(&self) -> Result<T, Error> {
-        T::establish(&self.database_url, self.password.clone())
-            .map_err(Error::ConnectionError)
+        let conn = T::establish(&self.database_url).map_err(Error::ConnectionError)?;
+        (self.init_connection)(&conn)?;
+
+        Ok(conn)
     }
 
     fn is_valid(&self, conn: &mut T) -> Result<(), Error> {

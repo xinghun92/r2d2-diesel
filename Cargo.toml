@@ -9,4 +9,5 @@ repository = "https://github.com/sgrif/r2d2-diesel"
 
 [dependencies]
 r2d2 = "0.7.3"
-diesel = { git = "https://github.com/king6cong/diesel", branch = "sdk", features = ["sqlite", "large-tables"] }
+#diesel = { git = "https://github.com/king6cong/diesel", branch = "sdk", features = ["sqlite", "large-tables"] }
+diesel = { path = "../diesel/diesel", features = ["sqlite", "large-tables"] }
