@@ -9,4 +9,4 @@ repository = "https://github.com/sgrif/r2d2-diesel"
 
 [dependencies]
 r2d2 = ">= 0.7, < 0.9"
-diesel = { git = "https://github.com/king6cong/diesel", branch = "sdk", features = ["sqlite", "large-tables"] }
+diesel = { git = "https://github.com/xinghun92/diesel", branch = "test", features = ["sqlite", "large-tables"] }
